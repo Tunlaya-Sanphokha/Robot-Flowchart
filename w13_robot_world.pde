@@ -6,7 +6,7 @@ void setup()
   size(500, 500);
   strokeWeight(2);
   world.load();
-  world.robot.ip.load(); 
+  world.loadControl(); 
 }
 
 void draw()
@@ -45,6 +45,11 @@ class World
   String[][] robotPosition;
   int[][] position = new int[500/blockSize][500/blockSize];
   Robot robot = new Robot(blockSize);
+  InputProcessor ip = new InputProcessor(robot);   
+  char up ;
+  char down ;
+  char left ;
+  char right ;
   
   World()
   {
@@ -140,11 +145,9 @@ class World
       }// j loop
     }// i loop
 
-    robot.isBlocked();
+    ip.moveControl();
     robot.isOnTarget();
-    robot.move();
-    robot.turnLeft();
-    robot.turnRight();
+    
   }//draw_map method
   
   void draw_target(int tmpRow, int tmpCol)
@@ -193,6 +196,28 @@ class World
     rect( x, y, blockSize, blockSize);
     stroke(0);
   }//draw_barrier method
+  void loadControl(){
+    File f = new File(sketchPath("control.txt"));
+    String[] btn;
+    
+    if(f.exists()){
+      String[] lines = loadStrings("control.txt");
+      btn = lines[0].split(",");
+      up = btn[0].charAt(0);
+      down = btn[1].charAt(0);
+      left = btn[2].charAt(0);
+      right = btn[3].charAt(0);
+    }else{
+      this.createFile();
+      this.load();
+    }// file exist condition
+  }// load method
+  
+  void createFile(){
+    String[] defaultBtn = {"forward,s,left,Right"};
+    saveStrings("control.txt", defaultBtn);  
+  }
+  
   
 }
 
@@ -204,39 +229,30 @@ class Robot
   int i ;
   int j ;
   String side = "UP" ;
-  InputProcessor ip = new InputProcessor();
+  
   
   Robot(int tmpBlockSize){
     blockSize = tmpBlockSize; 
   }
   void move()
   {
-   if (keyPressed == true )
-   {
-     if(key == ip.up())
-     {
        if(side == "UP")
        {
         row -= blockSize; 
-        keyPressed = false ;
        }
        if(side == "DOWN")
        {
         row +=  blockSize; 
-        keyPressed = false ; 
        }
        if(side == "LEFT")
        {
         column -= blockSize; 
-        keyPressed = false ;
        }
        if(side == "RIGHT")
        {
         column +=  blockSize; 
-        keyPressed = false ;
        }
-     }// button condition
-   }// keyPressed condition
+     
   }// move method
   
   void display(int tmpx , int tmpy)
@@ -267,70 +283,52 @@ class Robot
   
   void turnLeft()
   {
-   if(keyPressed == true)
-   {
-    if(key == ip.left())
-    {
+   
      if(side == "UP")
      {
       side = "LEFT"  ;
-      keyPressed = false ;
      }
      else if(side == "LEFT")
      {
       side = "DOWN"  ;
-      keyPressed = false ;
      }
      else if(side == "DOWN")
      {
       side = "RIGHT"  ;
-      keyPressed = false ;
      }
      else if(side == "RIGHT")
      {
       side = "UP"  ;
-      keyPressed = false ;
      }
-    }// button condition
-   }// keyPressed comdition
+   
   }// turnLeft method
   
   void turnRight()
   {
-   if(keyPressed == true)
-   {
-    if(key == ip.right())
-    {
+   
      if(side == "UP")
      {
       side = "RIGHT"  ;
-      keyPressed = false ;
      }
      else if(side == "RIGHT")
      {
       side = "DOWN"  ;
-      keyPressed = false ;
      }
      else if(side == "DOWN")
      {
       side = "LEFT"  ;
-      keyPressed = false ;
      }
      else if(side == "LEFT")
      {
       side = "UP" ;
-      keyPressed = false ;
      }
-    }// button condition
-   }// keyPressed condition
   }// turnRight method
   
   void isBlocked()
   {
    if (keyPressed == true )
    {
-     if(key == ip.up())
-     {
+     
        if(side == "UP")
        {
          if(this.i <= 0)
@@ -375,11 +373,11 @@ class Robot
            keyPressed = false ;
          }
        }
-     }// button condition
+     //}// button condition
    }// keyPressed condition
   }// isBlocked method
   
-  void isOnTarget()
+  void isOnTarget()   
   {
    if(world.position[this.i/world.blockSize][this.j/world.blockSize] == 2)
    {
@@ -391,7 +389,7 @@ class Robot
   }
      // button condition
    // keyPressed condition
-  // isOnTarget method
+  // isOnTarget method  
   
   int get_Row(){
     return i/blockSize;  
@@ -402,52 +400,58 @@ class Robot
   }
 }
 
-class InputProcessor
-{ 
+class InputProcessor{ 
   char up ;
   char down ;
   char left ;
   char right ;
+  Robot robot;
   
-  void load(){
-    File f = new File(sketchPath("control.txt"));
-    String[] btn;
+  
+  InputProcessor(Robot tmpRobot){ 
+    robot = tmpRobot;
+    up = 'w';              
+    left = 'a';
+    right = 'd';
+    }
     
-    if(f.exists()){
-      String[] lines = loadStrings("control.txt");
-      btn = lines[0].split(",");
-      up = btn[0].charAt(0);
-      down = btn[1].charAt(0);
-      left = btn[2].charAt(0);
-      right = btn[3].charAt(0);
-    }else{
-      this.createFile();
-      this.load();
-    }// file exist condition
-  }// load method
-  
-  void createFile(){
-    String[] defaultBtn = {"w,s,a,d"};
-    saveStrings("control.txt", defaultBtn);  
-  }
-  
-  char up()
-  {
-    return up ;
-  }
-  
-  char down()
-  {
-    return down ;
-  }
-  
-  char left()
-  {
-    return left ;
-  }
-  
-  char right()
-  {
-    return right ;
-  }
+  void moveControl(){        ///////condition  when KeyPressed = true
+    if (keyPressed == true )
+   {
+     if(key == up )
+      {
+        robot.isBlocked();        /////call method name isBlocked of class name Robot 
+        if(keyPressed = true){
+          robot.move();
+          keyPressed = false;
+        }
+      }
+       if(key == left ) //turn left 
+      {
+        robot.turnLeft();
+        keyPressed = false;
+      }
+      if(key == right){  ///turnRigh
+        robot.turnRight();
+        keyPressed = false;
+      }
+          
+    }
+  }// button condition
+    ///turnRight method
+   
+   void forword(char w){
+     up = w ;
+     }
+   void moveleft(char a){
+     left = a ;
+   }
+   void moveright(char d){
+     right = d;
+   }
+   
+     
 }
+
+
+    
