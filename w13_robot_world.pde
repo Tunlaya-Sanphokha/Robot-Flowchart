@@ -1,6 +1,5 @@
 World world = new World();
 
-
 void setup()
 {
   size(500, 500);
@@ -8,12 +7,10 @@ void setup()
   world.load();
   world.loadControl(); 
 }
-
 void draw()
 {
   background(255);
   world.draw_map();
-  
   if(keyPressed){
       if(mouseX > width/2-20 && mouseX < width/2 + 20){
           if(mouseY > height/2 - 20 && mouseY < height/2 + 20){
@@ -28,14 +25,11 @@ void draw()
        noLoop();
     }// button t condition
   }//keyPressed
-  
 }//draw function
-
 void mouseClicked(){
   world.save(); 
   exit();  
 }
-
 class World
 {
   int blockSize =50 ;
@@ -50,7 +44,6 @@ class World
   char down ;
   char left ;
   char right ;
-  
   World()
   {
   }
@@ -78,7 +71,6 @@ void save(){
     position[robot.get_Row()][robot.get_Column()] = 3;
     for(int i=0; i < height/blockSize; i++){
       tmpLines[i] = "";
-      
       for(int j=0; j < width/blockSize; j++){
         if(j != 0){
           tmpLines[i] += ",";  
@@ -89,7 +81,6 @@ void save(){
     saveStrings("saved.txt", tmpLines);
   }// save method
 
-
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Programmer: korrawee
@@ -98,15 +89,12 @@ void save(){
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void load(){
     File z = new File(sketchPath("saved.txt"));
-    
     if(z.exists()){
       String[] info = loadStrings("saved.txt");
       String[] tmpLine = {};
-      
       for(int i=0; i < info.length; i++)
       {
         tmpLine = split(info[i], ",");
-        
         for(int j=0; j < info.length; j++)
         {
           position[i][j] = int(tmpLine[j]);  
@@ -116,7 +104,7 @@ void save(){
        this.generate();
     }// check file exixts condition
   }// load method
-  
+
   
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -130,9 +118,7 @@ void save(){
     int tmp;
     position[0][0] = 3; //gen. robot
     position[tmpIndex][tmpIndex2] = 2; // gen. target
-    
     for(int i=0; i < position.length; i+=1){
-      
       for(int j=0; j < position.length; j+=2)
       {
         if(position[i][j] != 2 && position[i][j] != 3)
@@ -146,7 +132,6 @@ void save(){
       }// j loop
     }// i loop
   }// generate method
-
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Programmer: Pannawat Kingkaew collab by korrawee
@@ -155,28 +140,21 @@ void save(){
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void draw_map()
   {
-    
     for(int i = 0; i < position.length; i++){
       line(i* 50, 0, i*50, height);
-
       for(int j = 0; j < position.length; j++){  
         line(0, j*50,width, j*50);
-
         if(position[i][j] == 1 ){ // if barrier's position draw target
           this.draw_barrier(i, j); // draw_barrier(row, column)
-          
         }if(position[i][j] == 2 ){ // if target's position draw barrier
           this.draw_target(i, j); // convert index into row, column
-          
         }if(position[i][j] == 3){//  if robot's position draw robot
           robot.display(i,j);
         }
       }// j loop
     }// i loop
-
     ip.moveControl();
     robot.isOnTarget();
-    
   }//draw_map method
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -194,14 +172,12 @@ void save(){
       int dRightX, dRightY;
       int uLeftX, uLeftY;
       int uRightX, uRightY;
-      
       stroke(100, 250, 100);
       strokeWeight(random(0,1) * 5); // change block outline's color
       line(x, y , x + blockSize, y ); // up
       line(x, y + blockSize, x + blockSize, y + blockSize); //down
       line(x, y , x, y + blockSize); //left
       line(x + blockSize , y , x + blockSize, y + blockSize); // right
-      
       for(int i = 0; i < blockSize/4; i+= 2){ // draw each three corner
         dLeftX = x;
         dLeftY = y + blockSize;
@@ -218,10 +194,8 @@ void save(){
       }
       stroke(0);
       strokeWeight(2);
-      
     }// state condition
   }//draw_target method
-
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Programmer: Pannawat Kingkaew collab by korrawee
@@ -236,12 +210,11 @@ void save(){
     rect( x, y, blockSize, blockSize);
     stroke(0);
   }//draw_barrier method
-  
+
   
   void loadControl(){
     File f = new File(sketchPath("control.txt"));
     String[] btn;
-    
     if(f.exists()){
       String[] lines = loadStrings("control.txt");
       btn = lines[0].split(",");
@@ -254,15 +227,13 @@ void save(){
       this.load();
     }// file exist condition
   }// load method
-  
   void createFile(){
     String[] defaultBtn = {"forward,s,left,Right"};
     saveStrings("control.txt", defaultBtn);  
   }
-  
+
   
 }
-
 class Robot
 {
   int blockSize;
@@ -271,18 +242,25 @@ class Robot
   int i ;
   int j ;
   String side = "UP" ;
-  
+
   
   Robot(int tmpBlockSize){
     blockSize = tmpBlockSize; 
   }
- 
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Programmer: Pannawat Kingkaew 
 //
 // Description: make the robot move along the robot side shown on the map.
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+//
+// Programmer: (Tunlaya)
+//
+// Description: (void move)
+// Method tells the property that the Robot can walk.
+/////////////////////////////////////////////////////  
   void move()
   {
        if(side == "UP")
@@ -301,15 +279,17 @@ class Robot
        {
         column +=  blockSize; 
        }
-     
   }// move method
- 
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Programmer: Pannawat Kingkaew 
 //
 // Description: draw each side of robot (up,right,left,down)
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+   
   void display(int tmpx , int tmpy)
   {
    if(side == "UP")
@@ -342,9 +322,15 @@ class Robot
 //
 // Description: change the side of the robot to the left.
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+//
+// Programmer: (Tunlaya)
+//
+// Description: (void turnLeft)
+// change method tells the properties of the robot. Can turn left
+/////////////////////////////////////////////////////    
   void turnLeft()
   {
-   
      if(side == "UP")
      {
       side = "LEFT"  ;
@@ -361,7 +347,6 @@ class Robot
      {
       side = "UP"  ;
      }
-   
   }// turnLeft method
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -369,9 +354,17 @@ class Robot
 //
 // Description: change the side of the robot to the right.
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+/////////////////////////////////////////////////////
+//
+// Programmer: (Tunlaya)
+//
+// Description: (void turnRight)
+// change method tells the properties of the robot. Can turn right
+/////////////////////////////////////////////////////  
+
+  
   void turnRight()
   {
-   
      if(side == "UP")
      {
       side = "RIGHT"  ;
@@ -399,7 +392,6 @@ class Robot
   {
    if (keyPressed == true )
    {
-     
        if(side == "UP")
        {
          if(this.i <= 0)
@@ -466,23 +458,20 @@ class Robot
      // button condition
    // keyPressed condition
   // isOnTarget method  
-  
   int get_Row(){
     return i/blockSize;  
   }
-  
   int get_Column(){
     return j/blockSize;  
   }
 }
-
 class InputProcessor{ 
   char up ;
   char down ;
   char left ;
   char right ;
   Robot robot;
-  
+
   
   InputProcessor(Robot tmpRobot){ 
     robot = tmpRobot;
@@ -490,7 +479,13 @@ class InputProcessor{
     left = 'a';
     right = 'd';
     }
-    
+/////////////////////////////////////////////////////
+//
+// Programmer: (Tunlaya)
+//
+// Description: (void moveControl)
+// method to use the motion properties of the Class Robot.
+/////////////////////////////////////////////////////
   void moveControl(){        ///////condition  when KeyPressed = true
     if (keyPressed == true )
    {
@@ -511,11 +506,9 @@ class InputProcessor{
         robot.turnRight();
         keyPressed = false;
       }
-          
     }
   }// button condition
     ///turnRight method
-   
    void forword(char w){
      up = w ;
      }
@@ -525,9 +518,6 @@ class InputProcessor{
    void moveright(char d){
      right = d;
    }
+
    
-     
 }
-
-
-    
