@@ -54,7 +54,16 @@ class World
   World()
   {
   }
-  void save(){
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Programmer: korrawee
+//
+// Description: Save an object positions as a textfile(.txt) where saperated by ',' and '0' is represent to the path, 
+//                                                                  '1' is represent the wall, 
+//                                                                  '2' is represent to the objective, 
+//                                                                  '3' is represent to the robot   
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void save(){
     String[] tmpLines = new String[height/blockSize]; 
     for(int i = 0; i < height/blockSize; i++)
     {
@@ -79,7 +88,14 @@ class World
     }// i loop
     saveStrings("saved.txt", tmpLines);
   }// save method
-  
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Programmer: korrawee
+//
+// Description:  Load the saved data from the text file 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void load(){
     File z = new File(sketchPath("saved.txt"));
     
@@ -101,6 +117,13 @@ class World
     }// check file exixts condition
   }// load method
   
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Programmer: korrawee
+//
+// Description:  random all the object positions but fix robot at the top-left position  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void generate(){
     int tmpIndex = int(random(1,position.length));
     int tmpIndex2 = int(random(1,position.length));
