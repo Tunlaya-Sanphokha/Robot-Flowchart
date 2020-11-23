@@ -492,7 +492,7 @@ class InputProcessor{
      if(key == up )
       {
         robot.isBlocked();        /////call method name isBlocked of class name Robot 
-        if(keyPressed = true){
+        if(keyPressed == true){
           robot.move();
           keyPressed = false;
         }
