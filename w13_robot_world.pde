@@ -1,4 +1,5 @@
-World world = new World();      ///
+World world = new World();      
+Flowchart flow = new Flowchart(world.getRobot());     
 
 void setup()
 {
@@ -8,7 +9,8 @@ void setup()
   world.loadControl(); 
 }
 void draw()
-{
+{ 
+  if(frameCount % 15 == 0){flow.flowC();}    ///Condition frameCount
   background(255);
   world.draw_map();
   if(keyPressed){
@@ -231,7 +233,9 @@ void save(){
     String[] defaultBtn = {"forward,s,left,Right"};
     saveStrings("control.txt", defaultBtn);  
   }
-
+  Robot getRobot(){           /// getRobot is aritribute of class world
+    return this.robot;
+  }
   
 }
 class Robot
@@ -518,6 +522,19 @@ class InputProcessor{
    void moveright(char d){
      right = d;
    }
+}   //// class InputProcessor
 
-   
-}
+class Flowchart{
+  Robot robot;
+  
+  Flowchart(Robot tmpRobot){
+    robot = tmpRobot;
+  }
+ 
+  void flowC(){        
+    robot.turnRight();
+    robot.move();
+  }
+
+
+}  /// class Flowchart
