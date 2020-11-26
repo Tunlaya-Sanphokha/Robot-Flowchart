@@ -1,6 +1,6 @@
 World world = new World();      
 Flowchart flow = new Flowchart(world.getRobot()); 
-String[] flowchart = { "turnRight","move" };     ////Example Flowchart data
+String[] flowchart = { "turnRight","move" };     ///Example Flowchart data
 int i = 0;       /// Counter 
 void setup()
 {
