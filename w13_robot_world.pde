@@ -1,6 +1,7 @@
 World world = new World();      
-Flowchart flow = new Flowchart(world.getRobot());     
-
+Flowchart flow = new Flowchart(world.getRobot()); 
+String[] flowchart = { "turnRight","move" };     ////Example Flowchart data
+int i = 0;       /// Counter 
 void setup()
 {
   size(500, 500);
@@ -10,7 +11,13 @@ void setup()
 }
 void draw()
 { 
-  if(frameCount % 15 == 0){flow.flowC();}    ///Condition frameCount
+  if(frameCount % 15 == 0 ){          /////Execute command from Flowchart in order
+    world.doCommand(flowchart[i]);
+    if(i != flowchart.length -1){i ++;}
+    else {i = 0;}
+    
+  } ///Condition frameCount
+  
   background(255);
   world.draw_map();
   if(keyPressed){
@@ -235,7 +242,18 @@ void save(){
   }
   Robot getRobot(){           /// getRobot is aritribute of class world
     return this.robot;
+  } ///get Robot
+  
+  void doCommand(String command){                 //// Execute commands according to the Flowchart
+    if (command.equals("turnRight")){
+      robot.turnRight();
+    }
+    else if (command.equals("move")){
+      robot.move();
+    }
   }
+  
+  
   
 }
 class Robot
@@ -534,7 +552,22 @@ class Flowchart{
   void flowC(){        
     robot.turnRight();
     robot.move();
+    
+  } ///flowC
+  
+  void addCommand(String command){    ////add command to binary tree (LeftNode)
   }
+  
+  void addCondition(String condition , String falseCommand , String trueCommand){  //// add condition(isBlocked) 
+  }
+  
+  void insertTrueCommand(){     
+  }
+  
+  void insertFalseCommand(){   
+  }
+  
+  
 
 
 }  /// class Flowchart
