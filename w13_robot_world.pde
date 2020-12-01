@@ -11,6 +11,7 @@ void setup()
 }
 void draw()
 { 
+  
   if(frameCount % 15 == 0 ){          /////Execute command from Flowchart in order
     world.doCommand(flowchart[i]);
     if(i != flowchart.length -1){i ++;}
@@ -554,6 +555,7 @@ class Flowchart{
     robot.move();
     
   } ///flowC
+  
   
   void addCommand(String command){    ////add command to binary tree (LeftNode)
   }
