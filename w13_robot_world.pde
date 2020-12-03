@@ -543,33 +543,56 @@ class InputProcessor{
    }
 }   //// class InputProcessor
 
-class Flowchart{
-  Robot robot;
+class Flowchart{ /// implemented by binary tree
   
-  Flowchart(Robot tmpRobot){
-    robot = tmpRobot;
-  }
- 
-  void flowC(){        
-    robot.turnRight();
-    robot.move();
-    
-  } ///flowC
+  Node node = null;
+  Node recentCondition = null;
   
-  
-  void addCommand(String command){    ////add command to binary tree (LeftNode)
+  Flowchart(){
+   node = new Node(); 
   }
   
-  void addCondition(String condition , String falseCommand , String trueCommand){  //// add condition(isBlocked) 
+  void insert(String tmpCommand){  ///insert the command to binary tree
+     if(node.command == null){  ///if the first node does not contain any command then
+        node.command = tmpCommand;  /// add tmpCommand to first node's command
+     }else{
+        node.addLeft(node, tmpCommand); ///add tmpCommand to the most [ left node's command ]
+     } 
   }
   
-  void insertTrueCommand(){     
+  void insert(Flowchart tmpFlowchart){  ///insert the condition command to last binary tree
+     if(node.command == null){  ///if the first node does not contain any command then
+        node = tmpFlowchart.node;  /// assign tmpFlowchart's node to first node
+     }else{
+        node.addLeft(node, tmpFlowchart.node); ///add tmpFlowchart's node to the most [ left node ]
+     } 
+     recentCondition = tmpFlowchart.recentCondition;  /// Redirect last condition node to the tmpFlowchart's recentCondition
   }
-  
-  void insertFalseCommand(){   
-  }
-  
-  
-
-
-}  /// class Flowchart
+   
+   void insertFalse(String tmpCommand){  ///insert command that executes when the condition is false into the most recent condition
+     recentCondition.addRight(recentCondition, tmpCommand); /// add command to the most [ right node ]
+   }
+   
+   void insertFalse(Flowchart tmpFlowchart){  ///insert command that executes when the condition is false into the most recent condition
+     recentCondition.addRight(recentCondition, tmpFlowchart.node); /// add tmpFlowchart's node to the most [ right node ]
+   }
+   
+   void insertTrue(String tmpCommand){ ///insert command that executes when the condition is true into the most recent condition
+     
+     Node tmp = recentCondition.addLeft(recentCondition, tmpCommand);
+     recentCondition.recentTrue = tmp;  /// add command to the most [ left node ] 
+   }
+   
+   void insertTrue(Flowchart tmpFlowchart){  ///insert command that executes when the condition is false into the most recent condition
+     recentCondition.addLeft(recentCondition, tmpFlowchart.node); /// add tmpFlowchart's node to the most [ left node ] 
+   }
+   
+   void inserCondition(String tmpCommand, Flowchart tmpFalseFlowchart, Flowchart tmpTrueFlowchart){  ///insert condition command from another flowchart
+     Flowchart tmp = new Flowchart();  ///create temporary Flowchart
+     
+     tmp.insert(tmpCommand);  ///insert the command to tmp
+     tmp.node.left = tmpTrueFlowchart.node;  ///assign tmpTrueFlowchart's node into left parent node of tmp's node
+     tmp.node.right = tmpFalseFlowchart.node;  ///assign tmpTrueFlowchart's node into left parent node of tmp's node
+     node.addLeft(node, tmp.node);  ///add tmp's node to the most left node
+   }
+} ///class Flowchart
