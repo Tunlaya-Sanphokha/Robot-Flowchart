@@ -1,23 +1,29 @@
 World world = new World();      
-Flowchart flow = new Flowchart(world.getRobot()); 
-String[] flowchart = { "turnRight","move" };     ///Example Flowchart data
-int i = 0;       /// Counter 
+Flowchart myFlowchart = new Flowchart();
+Flowchart myFlowchartTwo = new Flowchart(); 
+
 void setup()
 {
   size(500, 500);
   strokeWeight(2);
   world.load();
   world.loadControl(); 
+  //world.test();
+  
+  myFlowchart.insertCondition("isBlocked()", "move()", "turnLeft()"); // (condition, false, true)
+  myFlowchart.insertTrue("move()");
+  myFlowchart.insertTrue("move()");
+  myFlowchartTwo.insertCondition("isBlocked()", "move()", "turnRight()");
+  myFlowchart.insertTrue(myFlowchartTwo);
+  myFlowchart.insertTrue("move()"); 
 }
 void draw()
 { 
+  world.doFlowchartCommand(myFlowchart);
   
-  if(frameCount % 15 == 0 ){          /////Execute command from Flowchart in order
-    world.doCommand(flowchart[i]);
-    if(i != flowchart.length -1){i ++;}
-    else {i = 0;}
-    
-  } ///Condition frameCount
+  
+  
+  
   
   background(255);
   world.draw_map();
@@ -54,8 +60,14 @@ class World
   char down ;
   char left ;
   char right ;
+  boolean makeTurn = false;   ///check isBlocked
+  Node recentNode;       
+  
+  //Flowchart myFlowchart = new Flowchart();
+  //Flowchart mySub = new Flowchart(); 
   World()
   {
+    
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -66,6 +78,7 @@ class World
 //                                                                  '2' is represent to the objective, 
 //                                                                  '3' is represent to the robot   
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
 void save(){
     String[] tmpLines = new String[height/blockSize]; 
     for(int i = 0; i < height/blockSize; i++)
@@ -243,18 +256,84 @@ void save(){
   }
   Robot getRobot(){           /// getRobot is aritribute of class world
     return this.robot;
-  } ///get Robot
-  
-  void doCommand(String command){                 //// Execute commands according to the Flowchart
-    if (command.equals("turnRight")){
-      robot.turnRight();
-    }
-    else if (command.equals("move")){
-      robot.move();
-    }
   }
   
+  void updateNode(Node node) {
+    println("in update");
+    if (node != null ) {   /// if node isn't empty 
+      println("node == null");
+      if (node.isCondition == false && makeTurn == true ) {  /// if makeTurn is true then 
+        recentNode = recentNode.left;  /// go to left node 
+        println("isCondition == false && makeTurn == true ");
+      } 
+      
+      else if (node.isCondition == false && !makeTurn  ) {  /// if makeTurn is false then 
+        println("(node.isCondition == false && !makeTurn");
+        recentNode = recentNode.right;  /// go to right node
+      } 
+      
+      else if (recentNode.isCondition == true && recentNode.command.equals("isBlocked() condition" )   ) {
+        println("in isCondition == true && recentNode.command.equals(");
+        makeTurn = robot.isBlocked();  /// maketurn assinged by true if there is a wall in front of robot
+        if (makeTurn == false) {    /// if makeTurn is false then
+          println("in mketurn false");
+          recentNode = recentNode.right;  /// go to right node 
+        } 
+        
+        else if (makeTurn) {      /// if makeTurn is true then 
+          println("in maketurn");
+          recentNode = recentNode.left;  /// go to left node
+        }
+      }
+    }
+  } ///updateNode method
   
+  void doFlowchartCommand(Flowchart myFlowchart) {
+   if (frameCount >50) { //delay time before start 
+     println(recentNode != null);
+      updateNode(recentNode);  //find next node to do 
+      if (recentNode != null) {  //if have command to do 
+        println("in recenNode != null " +recentNode.command);
+        doCommand(recentNode.command); //then do that belong to command 
+      }
+      else 
+      {
+        if(myFlowchart.recentCondition.recentTrue.left == null){   //is node is empty  myFlowchart.recentCondition.recentTrue.left == null
+        println("IN condition");
+        recentNode = myFlowchart.node;    //restart node to do again 
+        makeTurn = true;          //reset turn of flowchart
+        }
+        else
+        {
+          recentNode = myFlowchart.recentCondition.recentTrue;  //if have something to do affter then then do next is endTrueNode
+        }
+      }
+    }
+  } ///doFlowchartCommand
+  
+  void doCommand(String command) {
+    println("In docommand method");
+    if (command.equals("turnLeft()") || command.equals("turnLeft")) {   //if it's  turnLeft then do it  and redraw
+      robot.turnLeft();
+      this.draw_map();
+      println("DOing turnLeft()");
+    } 
+    else if (command.equals("turnRight()") || command.equals("turnRight")) { //if it is turnRight() then do it  and redraw
+      robot.turnRight();
+      this.draw_map();
+      println("DOing turnRight()");
+
+    } 
+    else if (command.equals("move()") || command.equals("move"))  //if it is turnLeft() then do it and re draw
+    {
+      if (robot.isBlocked()==false) {   
+        robot.move();
+        this.draw_map();
+        println("DOing move()");
+      }
+    }
+    delay(800);  //delay to do next
+  }
   
 }
 class Robot
@@ -264,7 +343,7 @@ class Robot
   int column = 0 ;
   int i ;
   int j ;
-  String side = "UP" ;
+  String side = "DOWN" ;
 
   
   Robot(int tmpBlockSize){
@@ -411,19 +490,21 @@ class Robot
 //
 // Description: check forward the robot is block
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  void isBlocked()
+  boolean isBlocked()
   {
-   if (keyPressed == true )
-   {
+   //if (keyPressed == true )
+   //{
        if(side == "UP")
        {
          if(this.i <= 0)
          {
            keyPressed = false ;
+           return true;
          }
          else if(world.position[ ((this.i - world.blockSize)/world.blockSize)  ][this.j/world.blockSize] == 1)
          {
            keyPressed = false ;
+           return true;
          }
        }
        if(side == "DOWN")
@@ -431,10 +512,12 @@ class Robot
          if(this.i + world.blockSize >= height)
          {
            keyPressed = false ;
+           return true;
          }
          else if(world.position[ ((this.i + world.blockSize)/world.blockSize)  ][this.j/world.blockSize] == 1)
          {
            keyPressed = false ;
+           return true;
          }
        }
        if(side == "LEFT")
@@ -442,10 +525,12 @@ class Robot
          if(this.j <= 0)
          {
            keyPressed = false ;
+           return true;
          }
          else if(world.position[  (this.i/world.blockSize)   ][( this.j - world.blockSize)/world.blockSize] == 1)
          {
            keyPressed = false ;
+           return true;
          }
        }
        if(side == "RIGHT")
@@ -453,15 +538,19 @@ class Robot
          if(this.j + world.blockSize >= width)
          {
            keyPressed = false ;
+           return true;
          }
          else if(world.position[ (this.i/world.blockSize)  ][( this.j + world.blockSize)/world.blockSize] == 1)
          {
            keyPressed = false ;
+           return true;
          }
        }
      //}// button condition
-   }// keyPressed condition
+  // }// keyPressed condition
+    return false;
   }// isBlocked method
+  
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Programmer: Pannawat Kingkaew 
@@ -546,7 +635,7 @@ class InputProcessor{
 class Flowchart{ /// implemented by binary tree
   
   Node node = null;
-  Node recentCondition = null;
+  Node recentCondition = new Node();
   
   Flowchart(){
    node = new Node(); 
@@ -579,7 +668,7 @@ class Flowchart{ /// implemented by binary tree
    
    void insertTrue(String tmpCommand){ ///insert command that executes when the condition is true into the most recent condition
      
-     Node tmp = recentCondition.addLeft(recentCondition, tmpCommand);
+     Node tmp = recentCondition.addLeft(recentCondition, tmpCommand);   
      recentCondition.recentTrue = tmp;  /// add command to the most [ left node ] 
    }
    
@@ -587,12 +676,24 @@ class Flowchart{ /// implemented by binary tree
      recentCondition.addLeft(recentCondition, tmpFlowchart.node); /// add tmpFlowchart's node to the most [ left node ] 
    }
    
-   void inserCondition(String tmpCommand, Flowchart tmpFalseFlowchart, Flowchart tmpTrueFlowchart){  ///insert condition command from another flowchart
+   void insertCondition(String tmpCommand, String tmpFalseCommand, String tmpTrueCommand) {  /// insert condition command from purely command
+    Node tmp = new Node(tmpCommand, tmpFalseCommand, tmpTrueCommand);  /// create temporary node tmp
+    recentCondition = tmp;         /// assign tmp node into recentCondition
+    if (node.command != null ) {  /// if there is a command then
+      node.addLeft(node, tmp);    //add tmp node to most left node 
+    } 
+    else 
+    {
+      node = tmp;  /// assign tmp node into the empty node
+    }
+  }
+  
+   void insertCondition(String tmpCommand, Flowchart tmpFalseFlowchart, Flowchart tmpTrueFlowchart){  ///insert condition command from another flowchart
      Flowchart tmp = new Flowchart();  ///create temporary Flowchart
      
      tmp.insert(tmpCommand);  ///insert the command to tmp
      tmp.node.left = tmpTrueFlowchart.node;  ///assign tmpTrueFlowchart's node into left parent node of tmp's node
-     tmp.node.right = tmpFalseFlowchart.node;  ///assign tmpTrueFlowchart's node into left parent node of tmp's node
+     tmp.node.right = tmpFalseFlowchart.node;  ///assign tmpTrueFlowchart's node into right parent node of tmp's node
      node.addLeft(node, tmp.node);  ///add tmp's node to the most left node
    }
-} ///class Flowchart
+}
